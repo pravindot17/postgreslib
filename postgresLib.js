@@ -16,13 +16,13 @@ let init = (dbConfig) => {
         }
 
         let pool = new pg.Pool(libPg.dbConfig.options);
-
+        libPg.conn = pool;
         pool.connect((err, client, done) => {
             if (err) {
                 console.error('connection failed with postgres', err.message);
                 reject(err);
             } else {
-                libPg.conn = client;
+                client.release();
                 resolve(true);
 
                 client.on('error', function (err) {
