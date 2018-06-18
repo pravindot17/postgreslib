@@ -1,4 +1,4 @@
-Mysql Library for CRUD operations
+Postges Library for CRUD operations
 ===================
 
 ## How to use
@@ -23,7 +23,7 @@ postgresDb.__init(config).then(() => {
 });
 
 // later you can use the crud functions in following way
-postgresDb.__select('SELECT * FROM test WHERE id >= $1', [1]).then((result) => {
+postgresDb.__select('SELECT * FROM test WHERE id >= $1', [10]).then((result) => {
     console.log('Got the result', result);
 }).catch(err => {
     throw err;
