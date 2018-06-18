@@ -89,10 +89,42 @@ let close = async () => {
     }
 }
 
+let getPoolConnection = () => {
+    return new Promise((resolve, reject) => {
+        if (libPg.conn) {
+            libPg.conn.connect((err, client) => {
+                if(err) {
+                    console.error('libPg.getPoolConnection, failed', err.message);
+                    reject(err);
+                } else {
+                    resolve(client);
+                }
+            });
+        } else {
+            console.error('libPg.getPoolConnection, error connecting postgres');
+            reject(new Error('Postgres is not connected, please try again later'));
+        }
+    });
+}
+
+let poolQuery = (pool, query, queryParams = []) => {
+    return new Promise((resolve, reject) => {
+        pool.query(query, queryParams, (err, result) => {
+            if(err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
+
 module.exports = {
     __init: init,
     __select: select,
     __insert: insert,
     __update: update,
+    __getPoolConnection: getPoolConnection,
+    __poolQuery: poolQuery,
     __close: close
 }
