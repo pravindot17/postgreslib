@@ -15,7 +15,7 @@ let init = (dbConfig) => {
             return resolve(false);
         }
 
-        let pool = new pg.Pool(libPg.dbConfig.options);
+        let pool = new pg.Pool(libPg.dbConfig);
         libPg.conn = pool;
         pool.connect((err, client, done) => {
             if (err) {
