@@ -4,7 +4,17 @@
 let pg = require('pg');
 let libPg = {};
 
-let init = (dbConfig) => {
+module.exports = {
+    __init: init,
+    __select: select,
+    __insert: insert,
+    __update: update,
+    __getPoolConnection: getPoolConnection,
+    __poolQuery: poolQuery,
+    __close: close
+}
+
+function init(dbConfig) {
     return new Promise((resolve, reject) => {
 
         // set config here for later use
@@ -34,7 +44,7 @@ let init = (dbConfig) => {
     });
 }
 
-let select = (query, queryParams = []) => {
+function select(query, queryParams = []) {
     return new Promise((resolve, reject) => {
         if (libPg.conn) {
             libPg.conn.query(query, queryParams).then(res => {
@@ -50,7 +60,7 @@ let select = (query, queryParams = []) => {
     });
 }
 
-let insert = (query, queryParams = []) => {
+function insert(query, queryParams = []) {
     return new Promise((resolve, reject) => {
         if (libPg.conn) {
             libPg.conn.query(query, queryParams).then(res => {
@@ -67,7 +77,7 @@ let insert = (query, queryParams = []) => {
 }
 
 
-let update = (query, queryParams = []) => {
+function update(query, queryParams = []) {
     return new Promise((resolve, reject) => {
         if (libPg.conn) {
             libPg.conn.query(query, queryParams).then(res => {
@@ -83,13 +93,13 @@ let update = (query, queryParams = []) => {
     });
 }
 
-let close = async () => {
+async function close() {
     if (libPg.dbConfig.init) {
         await libPg.conn.end();
     }
 }
 
-let getPoolConnection = () => {
+function getPoolConnection() {
     return new Promise((resolve, reject) => {
         if (libPg.conn) {
             libPg.conn.connect((err, client) => {
@@ -107,7 +117,7 @@ let getPoolConnection = () => {
     });
 }
 
-let poolQuery = (pool, query, queryParams = []) => {
+function poolQuery(pool, query, queryParams = []) {
     return new Promise((resolve, reject) => {
         pool.query(query, queryParams, (err, result) => {
             if(err) {
@@ -117,14 +127,4 @@ let poolQuery = (pool, query, queryParams = []) => {
             }
         });
     });
-}
-
-module.exports = {
-    __init: init,
-    __select: select,
-    __insert: insert,
-    __update: update,
-    __getPoolConnection: getPoolConnection,
-    __poolQuery: poolQuery,
-    __close: close
 }
