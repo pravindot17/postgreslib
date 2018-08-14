@@ -20,27 +20,26 @@ function init(dbConfig) {
         // set config here for later use
         libPg.dbConfig = dbConfig;
 
-        if (!libPg.dbConfig.init) {
-            libPg.conn = null;
-            return resolve(false);
+        if(!libPg.conn) {
+            let pool = new pg.Pool(libPg.dbConfig);
+            libPg.conn = pool;
+            pool.connect((err, client, done) => {
+                if (err) {
+                    console.error('connection failed with postgres', err.message);
+                    reject(err);
+                } else {
+                    client.release();
+                    resolve(true);
+
+                    client.on('error', function (err) {
+                        console.error('libPg.init, error connecting postgres:', err.message);
+                        libPg.conn = null;
+                    });
+                }
+            });
+        } else {
+            resolve(null);
         }
-
-        let pool = new pg.Pool(libPg.dbConfig);
-        libPg.conn = pool;
-        pool.connect((err, client, done) => {
-            if (err) {
-                console.error('connection failed with postgres', err.message);
-                reject(err);
-            } else {
-                client.release();
-                resolve(true);
-
-                client.on('error', function (err) {
-                    console.error('libPg.init, error connecting postgres:', err.message);
-                    libPg.conn = null;
-                });
-            }
-        });
     });
 }
 
@@ -94,9 +93,7 @@ function update(query, queryParams = []) {
 }
 
 async function close() {
-    if (libPg.dbConfig.init) {
-        await libPg.conn.end();
-    }
+    await libPg.conn.end();
 }
 
 function getPoolConnection() {
