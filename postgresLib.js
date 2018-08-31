@@ -3,6 +3,7 @@
 */
 let pg = require('pg');
 let libPg = {};
+libPg.conn = {};
 
 module.exports = {
     __init: init,
@@ -20,9 +21,9 @@ function init(dbConfig) {
         // set config here for later use
         libPg.dbConfig = dbConfig;
 
-        if(!libPg.conn) {
+        if(!libPg.conn[libPg.dbConfig['database']]) {
             let pool = new pg.Pool(libPg.dbConfig);
-            libPg.conn = pool;
+            libPg.conn[libPg.dbConfig['database']] = pool;
             pool.connect((err, client, done) => {
                 if (err) {
                     console.error('connection failed with postgres', err.message);
@@ -33,7 +34,7 @@ function init(dbConfig) {
 
                     client.on('error', function (err) {
                         console.error('libPg.init, error connecting postgres:', err.message);
-                        libPg.conn = null;
+                        libPg.conn[libPg.dbConfig['database']] = null;
                     });
                 }
             });
@@ -45,8 +46,8 @@ function init(dbConfig) {
 
 function select(query, queryParams = []) {
     return new Promise((resolve, reject) => {
-        if (libPg.conn) {
-            libPg.conn.query(query, queryParams).then(res => {
+        if (libPg.conn[libPg.dbConfig['database']]) {
+            libPg.conn[libPg.dbConfig['database']].query(query, queryParams).then(res => {
                 resolve(res.rows);
             }).catch(e => {
                 console.error('libPg.select, failed', e.message);
@@ -61,8 +62,8 @@ function select(query, queryParams = []) {
 
 function insert(query, queryParams = []) {
     return new Promise((resolve, reject) => {
-        if (libPg.conn) {
-            libPg.conn.query(query, queryParams).then(res => {
+        if (libPg.conn[libPg.dbConfig['database']]) {
+            libPg.conn[libPg.dbConfig['database']].query(query, queryParams).then(res => {
                 resolve(res);
             }).catch(e => {
                 console.error('libPg.insert, failed', e.message);
@@ -78,8 +79,8 @@ function insert(query, queryParams = []) {
 
 function update(query, queryParams = []) {
     return new Promise((resolve, reject) => {
-        if (libPg.conn) {
-            libPg.conn.query(query, queryParams).then(res => {
+        if (libPg.conn[libPg.dbConfig['database']]) {
+            libPg.conn[libPg.dbConfig['database']].query(query, queryParams).then(res => {
                 resolve(res);
             }).catch(e => {
                 console.error('libPg.update, failed', e.message);
@@ -93,13 +94,13 @@ function update(query, queryParams = []) {
 }
 
 async function close() {
-    await libPg.conn.end();
+    await libPg.conn[libPg.dbConfig['database']].end();
 }
 
 function getPoolConnection() {
     return new Promise((resolve, reject) => {
-        if (libPg.conn) {
-            libPg.conn.connect((err, client) => {
+        if (libPg.conn[libPg.dbConfig['database']]) {
+            libPg.conn[libPg.dbConfig['database']].connect((err, client) => {
                 if(err) {
                     console.error('libPg.getPoolConnection, failed', err.message);
                     reject(err);
