@@ -2,6 +2,14 @@ Postges Library for CRUD operations
 ===================
 
 ## How to use
+
+### Get used to it
+Get library in your node modules using following command:
+```
+npm install --save https://github.com/pravindot17/postgreslib
+```
+
+Let's see about js code:
 ```js
 let postgresDb = require('postgreslib');
 
