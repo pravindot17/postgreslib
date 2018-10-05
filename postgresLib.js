@@ -18,6 +18,11 @@ module.exports = {
 function init(dbConfig) {
     return new Promise((resolve, reject) => {
 
+        if(!dbConfig.host) reject(new Error('Please provide the host name'));
+        if(!dbConfig.database) reject(new Error('Please provide the database name'));
+        if(!dbConfig.user) reject(new Error('Please provide the database user'));
+        if(!dbConfig.password) reject(new Error('Please provide the database password'));
+
         // set config here for later use
         libPg.dbConfig = dbConfig;
 
